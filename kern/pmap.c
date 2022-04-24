@@ -97,6 +97,7 @@ boot_alloc(uint32_t n)
 	// to any kernel code or global variables.
 	if (!nextfree) {
 		extern char end[];
+		
 		nextfree = ROUNDUP((char *) end, PGSIZE);
 	}
 
@@ -105,8 +106,31 @@ boot_alloc(uint32_t n)
 	// to a multiple of PGSIZE.
 	//
 	// LAB 2: Your code here.
+	
+	if (n==0) 
+		return nextfree;
+	
+	//Calculate size of chunk
+	uint32_t allocated_chunk = ROUNDUP(n, PGSIZE);
+	
+	//Get physical address of nextfree
+	physaddr_t ph_nextfree = PADDR(nextfree);
+	
 
-	return NULL;
+	if ((ph_nextfree + allocated_chunk) >= (npages * PGSIZE) + KERNBASE) 
+		panic("Allocate failed. Not enough memory.");
+
+	//Allocates the memory (increase the physical address)
+	ph_nextfree += allocated_chunk;
+	
+	//returns the virtual addres corresponding to nextfree
+	nextfree = KADDR(ph_nextfree);
+	result = nextfree;
+	
+
+	return result;
+
+	//return NULL;
 }
 
 // Set up a two-level page table:
@@ -128,7 +152,7 @@ mem_init(void)
 	i386_detect_memory();
 
 	// Remove this line when you're ready to test this function.
-	panic("mem_init: This function is not finished\n");
+	// panic("mem_init: This function is not finished\n");
 
 	//////////////////////////////////////////////////////////////////////
 	// create initial page directory.
@@ -153,7 +177,10 @@ mem_init(void)
 	// memset
 	// to initialize all fields of each struct PageInfo to 0.
 	// Your code goes here:
+	pages = (struct PageInfo *) boot_alloc(npages * sizeof(struct PageInfo));
 	pages = memset(pages, 0, sizeof(struct PageInfo) * npages);
+
+	panic("mem_init: This function is not finished\n");
 
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
