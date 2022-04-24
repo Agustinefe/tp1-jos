@@ -106,7 +106,7 @@ boot_alloc(uint32_t n)
 	// to a multiple of PGSIZE.
 	//
 	// LAB 2: Your code here.
-	
+	extern char end[];
 	if (n==0) 
 		return nextfree;
 	
@@ -117,7 +117,7 @@ boot_alloc(uint32_t n)
 	physaddr_t ph_nextfree = PADDR(nextfree);
 	
 
-	if ((ph_nextfree + allocated_chunk) >= (npages * PGSIZE) + KERNBASE) 
+	if ((ph_nextfree + allocated_chunk) >= (npages * PGSIZE) + end) 
 		panic("Allocate failed. Not enough memory.");
 
 	//Allocates the memory (increase the physical address)
