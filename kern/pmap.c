@@ -304,7 +304,7 @@ page_alloc(int alloc_flags)
 	first_free_page->pp_link = NULL;
 
 	// if condition, fills the entire returned physical page with '\0' bytes
-	if (alloc_flags & ALLOC_ZERO) memset(page2kva(first_free_page, '\0', PGSIZE);
+	if (alloc_flags & ALLOC_ZERO) memset(page2kva(first_free_page), '\0', PGSIZE);
 
 	return first_free_page;
 }
