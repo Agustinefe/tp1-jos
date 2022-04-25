@@ -258,6 +258,14 @@ page_init(void)
 	// free pages!
 	size_t i;
 	for (i = 0; i < npages; i++) {
+		// If page number is 0 (1) or in [IOPHYSMEM, EXTPHYSMEM) (3)
+		// or in extended memory before last page allocated (4), then
+		// mark as in use.
+		if (i == 0 || (i >= PGNUM(IOPHYSMEM) && i < PGNUM(EXTPHYSMEM)) || i < PGNUM(PADDR(boot_alloc(0)))) {
+			pages[i].pp_ref = 1;
+			continue;
+		}
+		// Rest of base memory is free (2), rest of extended memory is free (4)
 		pages[i].pp_ref = 0;
 		pages[i].pp_link = page_free_list;
 		page_free_list = &pages[i];
