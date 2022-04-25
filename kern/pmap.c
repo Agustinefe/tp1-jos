@@ -287,8 +287,24 @@ page_init(void)
 struct PageInfo *
 page_alloc(int alloc_flags)
 {
-	// Fill this function in
-	return 0;
+	struct PageInfo *first_free_page;
+
+	// returns NULL if out of free memory
+	if (!page_free_list) return NULL;
+
+	// save to page_free_list reference
+	first_free_page = page_free_list;
+
+	// replace free list first page by next page
+	page_free_list = first_free_page->pp_link;
+
+	// set the pp_link field of the allocated page to NULL
+	first_free_page->pp_link = NULL;
+
+	// if condition, fills the entire returned physical page with '\0' bytes
+	if (alloc_flags & ALLOC_ZERO) memset(page2kva(first_free_page, '\0', PGSIZE);
+
+	return first_free_page;
 }
 
 //
