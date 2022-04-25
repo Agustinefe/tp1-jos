@@ -317,6 +317,17 @@ page_free(struct PageInfo *pp)
 	// Fill this function in
 	// Hint: You may want to panic if pp->pp_ref is nonzero or
 	// pp->pp_link is not NULL.
+
+	if (pp->pp_ref)
+		panic("page is still being referred to");
+	if (pp->pp_link)
+		panic("page still has a next page");
+
+	// pp's next page is now page_free_list first one
+	pp->pp_link = page_free_list;
+
+	// page_free_list first page is now pp
+	page_free_list = pp;
 }
 
 //
