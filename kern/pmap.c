@@ -97,7 +97,7 @@ boot_alloc(uint32_t n)
 	// to any kernel code or global variables.
 	if (!nextfree) {
 		extern char end[];
-		
+
 		nextfree = ROUNDUP((char *) end, PGSIZE);
 	}
 
@@ -107,30 +107,30 @@ boot_alloc(uint32_t n)
 	//
 	// LAB 2: Your code here.
 	extern char end[];
-	if (n==0) 
+	if (n == 0)
 		return nextfree;
-	
-	//Calculate size of chunk
-	uint32_t allocated_chunk = ROUNDUP(n, PGSIZE);
-	
-	//Get physical address of nextfree
-	physaddr_t ph_nextfree = PADDR(nextfree);
-	
 
-	if ((ph_nextfree + allocated_chunk) >= (npages * PGSIZE) + end) 
+	// Calculate size of chunk
+	uint32_t allocated_chunk = ROUNDUP(n, PGSIZE);
+
+	// Get physical address of nextfree
+	physaddr_t ph_nextfree = PADDR(nextfree);
+
+
+	if ((ph_nextfree + allocated_chunk) >= (npages * PGSIZE) + end)
 		panic("Allocate failed. Not enough memory.");
 
-	//Allocates the memory (increase the physical address)
+	// Allocates the memory (increase the physical address)
 	ph_nextfree += allocated_chunk;
-	
-	//returns the virtual addres corresponding to nextfree
+
+	// returns the virtual addres corresponding to nextfree
 	nextfree = KADDR(ph_nextfree);
 	result = nextfree;
-	
+
 
 	return result;
 
-	//return NULL;
+	// return NULL;
 }
 
 // Set up a two-level page table:
