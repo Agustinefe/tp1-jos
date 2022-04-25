@@ -287,6 +287,8 @@ page_init(void)
 struct PageInfo *
 page_alloc(int alloc_flags)
 {
+	// Fill this function in
+
 	struct PageInfo *first_free_page;
 
 	// returns NULL if out of free memory
