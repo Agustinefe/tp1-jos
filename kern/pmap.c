@@ -285,6 +285,14 @@ page_init(void)
 	// free pages!
 	size_t i;
 	for (i = 0; i < npages; i++) {
+		// If page number is 0 (1) or in [IOPHYSMEM, EXTPHYSMEM) (3)
+		// or in extended memory before last page allocated (4), then
+		// mark as in use.
+		if (i == 0 || (i >= PGNUM(IOPHYSMEM) && i < PGNUM(EXTPHYSMEM)) || i < PGNUM(PADDR(boot_alloc(0)))) {
+			pages[i].pp_ref = 1;
+			continue;
+		}
+		// Rest of base memory is free (2), rest of extended memory is free (4)
 		pages[i].pp_ref = 0;
 		pages[i].pp_link = page_free_list;
 		page_free_list = &pages[i];
@@ -307,7 +315,25 @@ struct PageInfo *
 page_alloc(int alloc_flags)
 {
 	// Fill this function in
-	return 0;
+
+	struct PageInfo *first_free_page;
+
+	// returns NULL if out of free memory
+	if (!page_free_list) return NULL;
+
+	// save to page_free_list reference
+	first_free_page = page_free_list;
+
+	// replace free list first page by next page
+	page_free_list = first_free_page->pp_link;
+
+	// set the pp_link field of the allocated page to NULL
+	first_free_page->pp_link = NULL;
+
+	// if condition, fills the entire returned physical page with '\0' bytes
+	if (alloc_flags & ALLOC_ZERO) memset(page2kva(first_free_page), '\0', PGSIZE);
+
+	return first_free_page;
 }
 
 //
@@ -320,6 +346,17 @@ page_free(struct PageInfo *pp)
 	// Fill this function in
 	// Hint: You may want to panic if pp->pp_ref is nonzero or
 	// pp->pp_link is not NULL.
+
+	if (pp->pp_ref)
+		panic("page is still being referred to");
+	if (pp->pp_link)
+		panic("page still has a next page");
+
+	// pp's next page is now page_free_list first one
+	pp->pp_link = page_free_list;
+
+	// page_free_list first page is now pp
+	page_free_list = pp;
 }
 
 //
