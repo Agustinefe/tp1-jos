@@ -117,15 +117,16 @@ boot_alloc(uint32_t n)
 	physaddr_t ph_nextfree = PADDR(nextfree);
 
 
-	if ((ph_nextfree + allocated_chunk) >= (npages * PGSIZE) + end)
+	if ((ph_nextfree + allocated_chunk) >= (npages * PGSIZE) + (int) end)
 		panic("Allocate failed. Not enough memory.");
 
 	// Allocates the memory (increase the physical address)
+	
 	ph_nextfree += allocated_chunk;
 
 	// returns the virtual addres corresponding to nextfree
-	nextfree = KADDR(ph_nextfree);
 	result = nextfree;
+	nextfree = KADDR(ph_nextfree);
 
 
 	return result;
@@ -180,7 +181,7 @@ mem_init(void)
 	pages = (struct PageInfo *) boot_alloc(npages * sizeof(struct PageInfo));
 	pages = memset(pages, 0, sizeof(struct PageInfo) * npages);
 
-	panic("mem_init: This function is not finished\n");
+	
 
 	//////////////////////////////////////////////////////////////////////
 	// Now that we've allocated the initial kernel data structures, we set
@@ -191,6 +192,7 @@ mem_init(void)
 	page_init();
 
 	check_page_free_list(1);
+//	panic("mem_init: This function is not finished\n");
 	check_page_alloc();
 	check_page();
 
@@ -249,6 +251,7 @@ mem_init(void)
 
 	// Some more checks, only possible after kern_pgdir is installed.
 	check_page_installed_pgdir();
+	
 }
 
 // --------------------------------------------------------------
